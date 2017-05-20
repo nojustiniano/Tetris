@@ -1,5 +1,5 @@
-from tetris.figure import Figure
-from tetris.properties import Properties
+from figure import Figure
+from properties import Properties
 
 
 class Collision:
@@ -10,26 +10,36 @@ class Collision:
     def __init__(self, stage: Figure):
         self.stage = stage
 
-    def check_borders(self, figure: Figure, move_x):
-        result = False
-        if figure.position.x + move_x < 0 or figure.position.x + move_x + figure.width > self.STAGE_WIDTH:
-            result = True
+    def check_x(self, figure: Figure, move_x):
 
-        return result
-
-    def check_stage(self, figure: Figure, move_x, move_y):
-
-        if figure.position.y + figure.height + move_y > self.STAGE_HEIGHT:
+        if figure.x + move_x < 0 or figure.x + move_x + figure.width > self.STAGE_WIDTH:
             return True
         else:
-            x = figure.position.x
-            y = figure.position.y
+            x = figure.x
+            y = figure.y
             for line in figure.blocks:
                 for block in line:
-                    if block == 1 and self.stage.blocks[y+move_y][x+move_x] == 1:
+                    if block == 1 and self.stage.blocks[y][x + move_x] == 1:
                         return True
                     x += 1
                 y += 1
-                x = figure.position.x
+                x = figure.x
+
+        return False
+
+    def check_y(self, figure: Figure, move_y):
+
+        if figure.y + figure.height + move_y > self.STAGE_HEIGHT:
+            return True
+        else:
+            x = figure.x
+            y = figure.y
+            for line in figure.blocks:
+                for block in line:
+                    if block == 1 and self.stage.blocks[y+move_y][x] == 1:
+                        return True
+                    x += 1
+                y += 1
+                x = figure.x
 
         return False

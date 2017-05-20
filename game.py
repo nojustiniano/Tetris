@@ -1,63 +1,94 @@
-import pygame, sys
+import copy
+import random
+import pygame
+import sys
 from pygame.locals import *
 
-from tetris.collision import Collision
-from tetris.figure import t_figure
-from tetris.stage import Stage
+from collision import Collision
+from figure import figure_list
+from properties import Properties
+from stage import Stage
 
-pygame.init()
-pygame.display.set_caption("Tetris")
-screen = pygame.display.set_mode((480, 864))
 
-clock = pygame.time.Clock()
-stage = Stage()
-collision = Collision(stage)
+class Game:
 
-t_figure.position.set(4, 0)
-while True:
-    screen.fill((0, 0, 0))
-    stage.draw(screen)
-    t_figure.draw(screen)
-    pygame.display.update()
-    move_x = 0
-    move_y = 0
+    def start_game(self):
+        pygame.init()
+        pygame.display.set_caption("Tetris")
+        screen = pygame.display.set_mode(
+            (Properties.BLOCK_SIZE * Properties.STAGE_WIDTH, Properties.BLOCK_SIZE * Properties.STAGE_HEIGHT))
 
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            pygame.quit()
-            sys.exit(True)
-        # if event.type == pygame.KEYDOWN:
-        #     if event.key == pygame.K_DOWN:
-        #         move_y = 1
-        #     if event.key == pygame.K_LEFT:
-        #         move_x = -1
-        #     if event.key == pygame.K_RIGHT:
-        #         print("right")
-        #         move_x = 1
+        clock = pygame.time.Clock()
+        stage = Stage()
+        collision = Collision(stage)
+        rotated = 0
+        gravity = 0
+        figure = self.get_random_figure()
+        next_figure = self.get_random_figure()
 
-    pressed = pygame.key.get_pressed()
+        while True:
+            screen.fill((0, 0, 0))
+            stage.draw(screen)
+            figure.draw(screen)
+            pygame.display.update()
+            move_x = 0
+            move_y = 0
 
-    if pressed[pygame.K_DOWN]:
-        move_y = 1
-    elif pressed[pygame.K_LEFT]:
-        move_x = -1
-    elif pressed[pygame.K_RIGHT]:
-        move_x = 1
-    elif pressed[pygame.K_a]:
-        t_figure.rotate_left()
-    elif pressed[pygame.K_d]:
-        t_figure.rotate_right()
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit(True)
 
-    if collision.check_borders(t_figure, move_x):
-        move_x = 0
-        print("collide")
-    if collision.check_stage(t_figure, move_x, move_y):
-        move_x = 0
-        move_y = 0
-        stage.merge_figure(t_figure)
-        t_figure.position.set(2, 0)
-        print("merge")
+            pressed = pygame.key.get_pressed()
 
-    t_figure.position.x += move_x
-    t_figure.position.y += move_y
-    clock.tick(10)
+            if pressed[pygame.K_DOWN]:
+                move_y = 1
+            if pressed[pygame.K_LEFT]:
+                move_x = -1
+            if pressed[pygame.K_RIGHT]:
+                move_x = 1
+            if pressed[pygame.K_a]:
+                if rotated == 0:
+                    figure.rotate_left()
+                    rotated = 1
+            if pressed[pygame.K_d]:
+                if rotated == 0:
+                    figure.rotate_right()
+                    rotated = 1
+
+            if 0 < rotated < 3:
+                rotated += 1
+            else:
+                rotated = 0
+
+            if gravity < 8:
+                gravity += 1
+            else:
+                gravity = 0
+                move_y = 1
+
+            if collision.check_x(figure, move_x):
+                move_x = 0
+                print("collide")
+
+            figure.x += move_x
+
+            if collision.check_y(figure, move_y):
+                move_y = 0
+                stage.merge_figure(figure)
+                figure = next_figure
+                next_figure = self.get_random_figure()
+                print("merge")
+
+            figure.y += move_y
+
+            stage.check_completed_lines()
+
+            clock.tick(10)
+
+    @staticmethod
+    def get_random_figure():
+        figure = copy.copy(figure_list[random.randint(0, len(figure_list) - 1)])
+        figure.x = random.randint(0, Properties.STAGE_WIDTH - 1 - figure.width)
+        figure.y = 0
+        return figure
