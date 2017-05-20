@@ -34,6 +34,7 @@ class Stage(Figure):
             if count == Properties.STAGE_WIDTH:
                 partial_lines += 1
                 self.remove_line(line)
-
-        self.score += 10 ^ partial_lines
-        self.completed_lines += partial_lines
+        if partial_lines > 0:
+            self.score += sum([10 * n for n in range(partial_lines+1)])
+            self.completed_lines += partial_lines
+            print("Score: " + str(self.score) + " - Lines: " + str(self.completed_lines))

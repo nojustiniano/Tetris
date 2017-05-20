@@ -11,7 +11,6 @@ from stage import Stage
 
 
 class Game:
-
     def start_game(self):
         pygame.init()
         pygame.display.set_caption("Tetris")
@@ -27,18 +26,23 @@ class Game:
         next_figure = self.get_random_figure()
 
         while True:
-            screen.fill((0, 0, 0))
+            screen.fill(Properties.BACKGROUND_COLOR)
             stage.draw(screen)
             figure.draw(screen)
             pygame.display.update()
             move_x = 0
             move_y = 0
 
+            if collision.collision_row == 1:
+                # TODO: implement Game Over
+                pygame.quit()
+                sys.exit(True)
             for event in pygame.event.get():
                 if event.type == QUIT:
                     pygame.quit()
                     sys.exit(True)
 
+            # key check
             pressed = pygame.key.get_pressed()
 
             if pressed[pygame.K_DOWN]:
@@ -56,32 +60,35 @@ class Game:
                     figure.rotate_right()
                     rotated = 1
 
+            # Add delay to the rotation action
             if 0 < rotated < 3:
                 rotated += 1
             else:
                 rotated = 0
 
+            # More is less
             if gravity < 8:
                 gravity += 1
             else:
                 gravity = 0
                 move_y = 1
 
+            # First check horizontal collides, horizontal collides don't produce merges
             if collision.check_x(figure, move_x):
                 move_x = 0
-                print("collide")
-
+                print("collide with column " + str(collision.collision_column))
             figure.x += move_x
 
+            # Finally check vertical collides, this produces merges
             if collision.check_y(figure, move_y):
                 move_y = 0
                 stage.merge_figure(figure)
                 figure = next_figure
                 next_figure = self.get_random_figure()
-                print("merge")
-
+                print("merge at row " + str(collision.collision_row))
             figure.y += move_y
 
+            # Check completed lines, remove them and add new at the beginning
             stage.check_completed_lines()
 
             clock.tick(10)

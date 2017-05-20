@@ -1,4 +1,6 @@
 class Properties:
-    BLOCK_SIZE = 32
+    BLOCK_SIZE = 24
     STAGE_WIDTH = 10
-    STAGE_HEIGHT = 18
+    STAGE_HEIGHT = 20
+    BACKGROUND_COLOR = (40, 40, 40)
+    BLOCK_BORDER_COLOR = (220, 220, 220)
