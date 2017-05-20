@@ -6,6 +6,7 @@ from pygame.locals import *
 
 from collision import Collision
 from figure import figure_list
+from menu import Menu
 from properties import Properties
 from stage import Stage
 
@@ -14,8 +15,24 @@ class Game:
     def start_game(self):
         pygame.init()
         pygame.display.set_caption("Tetris")
+
         screen = pygame.display.set_mode(
+            (Properties.BLOCK_SIZE * Properties.STAGE_WIDTH + Properties.MENU_WIDTH + 3 * Properties.WINDOW_BORDER_WIDTH,
+             Properties.BLOCK_SIZE * Properties.STAGE_HEIGHT + 2 * Properties.WINDOW_BORDER_WIDTH))
+        stage_surface = pygame.Surface(
             (Properties.BLOCK_SIZE * Properties.STAGE_WIDTH, Properties.BLOCK_SIZE * Properties.STAGE_HEIGHT))
+        menu_surface = pygame.Surface((Properties.MENU_WIDTH, Properties.BLOCK_SIZE * Properties.STAGE_HEIGHT))
+
+        stage_border = pygame.Rect(0, 0,
+            Properties.BLOCK_SIZE * Properties.STAGE_WIDTH + 2 * Properties.WINDOW_BORDER_WIDTH,
+            Properties.BLOCK_SIZE * Properties.STAGE_HEIGHT + 2 * Properties.WINDOW_BORDER_WIDTH)
+
+        menu_border = pygame.Rect(Properties.BLOCK_SIZE * Properties.STAGE_WIDTH, 0,
+            Properties.MENU_WIDTH + 2 * Properties.WINDOW_BORDER_WIDTH,
+            Properties.BLOCK_SIZE * Properties.STAGE_HEIGHT + 2 * Properties.WINDOW_BORDER_WIDTH)
+
+        pygame.draw.rect(screen, Properties.BLOCK_BORDER_COLOR, stage_border, Properties.WINDOW_BORDER_WIDTH)
+        pygame.draw.rect(screen, Properties.BLOCK_BORDER_COLOR, menu_border, Properties.WINDOW_BORDER_WIDTH)
 
         clock = pygame.time.Clock()
         stage = Stage()
@@ -24,11 +41,20 @@ class Game:
         gravity = 0
         figure = self.get_random_figure()
         next_figure = self.get_random_figure()
+        menu = Menu(stage, next_figure)
 
         while True:
-            screen.fill(Properties.BACKGROUND_COLOR)
-            stage.draw(screen)
-            figure.draw(screen)
+            stage_surface.fill(Properties.BACKGROUND_COLOR)
+            menu_surface.fill(Properties.BACKGROUND_COLOR)
+
+            stage.draw(stage_surface)
+            figure.draw(stage_surface)
+            menu.draw(menu_surface)
+
+            screen.blit(stage_surface, (Properties.WINDOW_BORDER_WIDTH, Properties.WINDOW_BORDER_WIDTH))
+            screen.blit(menu_surface, (Properties.BLOCK_SIZE * Properties.STAGE_WIDTH + 2 * Properties.WINDOW_BORDER_WIDTH,
+                                       Properties.WINDOW_BORDER_WIDTH))
+
             pygame.display.update()
             move_x = 0
             move_y = 0
@@ -85,6 +111,7 @@ class Game:
                 stage.merge_figure(figure)
                 figure = next_figure
                 next_figure = self.get_random_figure()
+                menu.next_figure = next_figure
                 print("merge at row " + str(collision.collision_row))
             figure.y += move_y
 
