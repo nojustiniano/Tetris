@@ -4,10 +4,10 @@ import pygame
 import sys
 from pygame.locals import *
 
+from properties import *
 from collision import Collision
 from figure import figure_list
 from menu import Menu
-from properties import Properties
 from stage import Stage
 
 
@@ -16,23 +16,21 @@ class Game:
         pygame.init()
         pygame.display.set_caption("Tetris")
 
-        screen = pygame.display.set_mode(
-            (Properties.BLOCK_SIZE * Properties.STAGE_WIDTH + Properties.MENU_WIDTH + 3 * Properties.WINDOW_BORDER_WIDTH,
-             Properties.BLOCK_SIZE * Properties.STAGE_HEIGHT + 2 * Properties.WINDOW_BORDER_WIDTH))
-        stage_surface = pygame.Surface(
-            (Properties.BLOCK_SIZE * Properties.STAGE_WIDTH, Properties.BLOCK_SIZE * Properties.STAGE_HEIGHT))
-        menu_surface = pygame.Surface((Properties.MENU_WIDTH, Properties.BLOCK_SIZE * Properties.STAGE_HEIGHT))
+        screen = pygame.display.set_mode((
+            BLOCK_SIZE * STAGE_WIDTH + MENU_WIDTH + 3 * WINDOW_BORDER_WIDTH,
+            BLOCK_SIZE * STAGE_HEIGHT + 2 * WINDOW_BORDER_WIDTH
+        ))
 
-        stage_border = pygame.Rect(0, 0,
-            Properties.BLOCK_SIZE * Properties.STAGE_WIDTH + 2 * Properties.WINDOW_BORDER_WIDTH,
-            Properties.BLOCK_SIZE * Properties.STAGE_HEIGHT + 2 * Properties.WINDOW_BORDER_WIDTH)
+        stage_surface = pygame.Surface((BLOCK_SIZE * STAGE_WIDTH, BLOCK_SIZE * STAGE_HEIGHT))
+        menu_surface = pygame.Surface((MENU_WIDTH, BLOCK_SIZE * STAGE_HEIGHT))
+        stage_border = pygame.Rect(0, 0, BLOCK_SIZE * STAGE_WIDTH + 2 * WINDOW_BORDER_WIDTH,
+                                   BLOCK_SIZE * STAGE_HEIGHT + 2 * WINDOW_BORDER_WIDTH)
 
-        menu_border = pygame.Rect(Properties.BLOCK_SIZE * Properties.STAGE_WIDTH, 0,
-            Properties.MENU_WIDTH + 2 * Properties.WINDOW_BORDER_WIDTH,
-            Properties.BLOCK_SIZE * Properties.STAGE_HEIGHT + 2 * Properties.WINDOW_BORDER_WIDTH)
+        menu_border = pygame.Rect(BLOCK_SIZE * STAGE_WIDTH, 0, MENU_WIDTH + 2 * WINDOW_BORDER_WIDTH,
+                                  BLOCK_SIZE * STAGE_HEIGHT + 2 * WINDOW_BORDER_WIDTH)
 
-        pygame.draw.rect(screen, Properties.BLOCK_BORDER_COLOR, stage_border, Properties.WINDOW_BORDER_WIDTH)
-        pygame.draw.rect(screen, Properties.BLOCK_BORDER_COLOR, menu_border, Properties.WINDOW_BORDER_WIDTH)
+        pygame.draw.rect(screen, BLOCK_BORDER_COLOR, stage_border, WINDOW_BORDER_WIDTH)
+        pygame.draw.rect(screen, BLOCK_BORDER_COLOR, menu_border, WINDOW_BORDER_WIDTH)
 
         clock = pygame.time.Clock()
         stage = Stage()
@@ -44,25 +42,32 @@ class Game:
         menu = Menu(stage, next_figure)
 
         while True:
-            stage_surface.fill(Properties.BACKGROUND_COLOR)
-            menu_surface.fill(Properties.BACKGROUND_COLOR)
+            # Erase all
+            stage_surface.fill(BACKGROUND_COLOR)
+            menu_surface.fill(BACKGROUND_COLOR)
 
+            # Draw the stage elements
             stage.draw(stage_surface)
             figure.draw(stage_surface)
+            # Draw the menu elements
             menu.draw(menu_surface)
 
-            screen.blit(stage_surface, (Properties.WINDOW_BORDER_WIDTH, Properties.WINDOW_BORDER_WIDTH))
-            screen.blit(menu_surface, (Properties.BLOCK_SIZE * Properties.STAGE_WIDTH + 2 * Properties.WINDOW_BORDER_WIDTH,
-                                       Properties.WINDOW_BORDER_WIDTH))
-
+            # Draw stage and menu in the screen
+            screen.blit(stage_surface, (WINDOW_BORDER_WIDTH, WINDOW_BORDER_WIDTH))
+            screen.blit(menu_surface, (BLOCK_SIZE * STAGE_WIDTH + 2 * WINDOW_BORDER_WIDTH, WINDOW_BORDER_WIDTH))
+            # Update screen
             pygame.display.update()
+
+            # Reset movement
             move_x = 0
             move_y = 0
 
+            # If there was a collision in the first line them game over
             if collision.collision_row == 1:
                 # TODO: implement Game Over
                 pygame.quit()
                 sys.exit(True)
+
             for event in pygame.event.get():
                 if event.type == QUIT:
                     pygame.quit()
@@ -123,6 +128,6 @@ class Game:
     @staticmethod
     def get_random_figure():
         figure = copy.copy(figure_list[random.randint(0, len(figure_list) - 1)])
-        figure.x = random.randint(0, Properties.STAGE_WIDTH - 1 - figure.width)
+        figure.x = random.randint(0, STAGE_WIDTH - 1 - figure.width)
         figure.y = 0
         return figure
