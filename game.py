@@ -13,18 +13,18 @@ from stage import Stage
 
 class Game:
     def __init__(self):
+        pygame.init()
         self.gravity = 0
         self.rotated = 0
         self.next_figure = self.get_random_figure()
         self.figure = self.get_random_figure()
-        self.menu = Menu(self.stage, self.next_figure)
         self.stage = Stage()
+        self.menu = Menu(self.stage, self.next_figure)
         self.collision = Collision(self.stage)
         self.move_x = 0
         self.move_y = 0
 
     def start_game(self):
-        pygame.init()
         pygame.display.set_caption("Tetris")
 
         screen = pygame.display.set_mode((
@@ -135,7 +135,7 @@ class Game:
             self.next_figure = self.get_random_figure()
             self.menu.next_figure = self.next_figure
             print("merge at row " + str(self.collision.collision_row))
-            self.figure.y += self.move_y
+        self.figure.y += self.move_y
 
     # It returns a random copy of a figure from figure_list
     @staticmethod
