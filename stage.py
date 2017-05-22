@@ -1,13 +1,13 @@
 from figure import Figure
-from properties import Properties
+from properties import *
 
 
 class Stage(Figure):
     def __init__(self):
         self.score = 0
         self.completed_lines = 0
-        self.NEW_LINE = [0 for x in range(Properties.STAGE_WIDTH)]
-        super().__init__([list(self.NEW_LINE) for y in range(Properties.STAGE_HEIGHT)])
+        self.NEW_LINE = [0 for x in range(STAGE_WIDTH)]
+        super().__init__([list(self.NEW_LINE) for y in range(STAGE_HEIGHT)])
 
     def merge_figure(self, figure: Figure):
         x = figure.x
@@ -31,7 +31,7 @@ class Stage(Figure):
             count = 0
             for block in line:
                 count += block
-            if count == Properties.STAGE_WIDTH:
+            if count == STAGE_WIDTH:
                 partial_lines += 1
                 self.remove_line(line)
         if partial_lines > 0:

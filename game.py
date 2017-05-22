@@ -12,6 +12,17 @@ from stage import Stage
 
 
 class Game:
+    def __init__(self):
+        self.gravity = 0
+        self.rotated = 0
+        self.next_figure = self.get_random_figure()
+        self.figure = self.get_random_figure()
+        self.menu = Menu(self.stage, self.next_figure)
+        self.stage = Stage()
+        self.collision = Collision(self.stage)
+        self.move_x = 0
+        self.move_y = 0
+
     def start_game(self):
         pygame.init()
         pygame.display.set_caption("Tetris")
@@ -33,13 +44,6 @@ class Game:
         pygame.draw.rect(screen, BLOCK_BORDER_COLOR, menu_border, WINDOW_BORDER_WIDTH)
 
         clock = pygame.time.Clock()
-        stage = Stage()
-        collision = Collision(stage)
-        rotated = 0
-        gravity = 0
-        figure = self.get_random_figure()
-        next_figure = self.get_random_figure()
-        menu = Menu(stage, next_figure)
 
         while True:
             # Erase all
@@ -47,10 +51,10 @@ class Game:
             menu_surface.fill(BACKGROUND_COLOR)
 
             # Draw the stage elements
-            stage.draw(stage_surface)
-            figure.draw(stage_surface)
+            self.stage.draw(stage_surface)
+            self.figure.draw(stage_surface)
             # Draw the menu elements
-            menu.draw(menu_surface)
+            self.menu.draw(menu_surface)
 
             # Draw stage and menu in the screen
             screen.blit(stage_surface, (WINDOW_BORDER_WIDTH, WINDOW_BORDER_WIDTH))
@@ -59,72 +63,81 @@ class Game:
             pygame.display.update()
 
             # Reset movement
-            move_x = 0
-            move_y = 0
+            self.move_x = 0
+            self.move_y = 0
 
             # If there was a collision in the first line them game over
-            if collision.collision_row == 1:
+            if self.collision.collision_row == 1:
                 # TODO: implement Game Over
                 pygame.quit()
                 sys.exit(True)
 
-            for event in pygame.event.get():
-                if event.type == QUIT:
-                    pygame.quit()
-                    sys.exit(True)
+            self.check_keys_pressed()
 
-            # key check
-            pressed = pygame.key.get_pressed()
-
-            if pressed[pygame.K_DOWN]:
-                move_y = 1
-            if pressed[pygame.K_LEFT]:
-                move_x = -1
-            if pressed[pygame.K_RIGHT]:
-                move_x = 1
-            if pressed[pygame.K_a]:
-                if rotated == 0:
-                    figure.rotate_left()
-                    rotated = 1
-            if pressed[pygame.K_d]:
-                if rotated == 0:
-                    figure.rotate_right()
-                    rotated = 1
-
-            # Add delay to the rotation action
-            if 0 < rotated < 3:
-                rotated += 1
-            else:
-                rotated = 0
-
-            # More is less
-            if gravity < 8:
-                gravity += 1
-            else:
-                gravity = 0
-                move_y = 1
-
-            # First check horizontal collides, horizontal collides don't produce merges
-            if collision.check_x(figure, move_x):
-                move_x = 0
-                print("collide with column " + str(collision.collision_column))
-            figure.x += move_x
-
-            # Finally check vertical collides, this produces merges
-            if collision.check_y(figure, move_y):
-                move_y = 0
-                stage.merge_figure(figure)
-                figure = next_figure
-                next_figure = self.get_random_figure()
-                menu.next_figure = next_figure
-                print("merge at row " + str(collision.collision_row))
-            figure.y += move_y
+            self.check_collisions()
 
             # Check completed lines, remove them and add new at the beginning
-            stage.check_completed_lines()
+            self.stage.check_completed_lines()
 
             clock.tick(10)
 
+    def check_keys_pressed(self):
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit(True)
+
+        # key check
+        pressed = pygame.key.get_pressed()
+        if pressed[pygame.K_DOWN]:
+            self.move_y = 1
+        if pressed[pygame.K_LEFT]:
+            self.move_x = -1
+        if pressed[pygame.K_RIGHT]:
+            self.move_x = 1
+        if pressed[pygame.K_a]:
+            if self.rotated == 0:
+                self.figure.rotate_left()
+                self.rotated = 1
+        if pressed[pygame.K_d]:
+            if self.rotated == 0:
+                self.figure.rotate_right()
+                self.rotated = 1
+
+        # Add delay to the rotation action
+        if 0 < self.rotated < 3:
+            self.rotated += 1
+        else:
+            self.rotated = 0
+
+        # More is less
+        if self.gravity < 8:
+            self.gravity += 1
+        else:
+            self.gravity = 0
+            self.move_y = 1
+
+    # Checks collisions with borders and other blocks, if the figure don't collides apply the movement,
+    # if collides horizontally not apply the movement and finally if collides vertically merge the
+    # figure blocks with the stage and launch a new figure
+    def check_collisions(self):
+        # First check horizontal collides, horizontal collides don't produce merges
+        if self.collision.check_x(self.figure, self.move_x):
+            self.move_x = 0
+            print("collide with column " + str(self.collision.collision_column))
+        self.figure.x += self.move_x
+
+        # Finally check vertical collides, this produces merges
+        if self.collision.check_y(self.figure, self.move_y):
+            self.move_y = 0
+            self.stage.merge_figure(self.figure)
+            self.figure = self.next_figure
+            self.next_figure = self.get_random_figure()
+            self.menu.next_figure = self.next_figure
+            print("merge at row " + str(self.collision.collision_row))
+            self.figure.y += self.move_y
+
+    # It returns a random copy of a figure from figure_list
     @staticmethod
     def get_random_figure():
         figure = copy.copy(figure_list[random.randint(0, len(figure_list) - 1)])

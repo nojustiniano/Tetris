@@ -1,12 +1,8 @@
 from figure import Figure
-from properties import Properties
+from properties import *
 
 
 class Collision:
-    BLOCK_SIZE = Properties.BLOCK_SIZE
-    STAGE_HEIGHT = Properties.STAGE_HEIGHT
-    STAGE_WIDTH = Properties.STAGE_WIDTH
-
     def __init__(self, stage: Figure):
         self.stage = stage
         self.collision_column = 0
@@ -18,8 +14,8 @@ class Collision:
         if figure.x + move_x < 0:
             self.collision_column = 0
             return True
-        elif figure.x + move_x + figure.width > self.STAGE_WIDTH:
-            self.collision_column = self.STAGE_WIDTH
+        elif figure.x + move_x + figure.width > STAGE_WIDTH:
+            self.collision_column = STAGE_WIDTH
             return True
         else:
             x = figure.x
@@ -38,7 +34,7 @@ class Collision:
     def check_y(self, figure: Figure, move_y):
         self.collision_row = 0
 
-        if figure.y + figure.height + move_y > self.STAGE_HEIGHT:
+        if figure.y + figure.height + move_y > STAGE_HEIGHT:
             self.collision_row = figure.y + figure.height + move_y
             return True
         else:

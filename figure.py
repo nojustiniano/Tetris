@@ -1,10 +1,9 @@
 import pygame
-
-from properties import Properties
+from properties import *
 
 
 class Figure:
-    BLOCK_SIZE = Properties.BLOCK_SIZE
+    BLOCK_SIZE = BLOCK_SIZE
 
     def __init__(self, blocks, color=(0, 80, 150)):
         self.blocks = blocks
@@ -19,8 +18,8 @@ class Figure:
         self.blocks = list(zip(*self.blocks[::-1]))
         self._calculate_size()
         # Prevents the figure from leaving the stage
-        if self.x + self.width > Properties.STAGE_WIDTH:
-            self.x -= self.x + self.width - Properties.STAGE_WIDTH
+        if self.x + self.width > STAGE_WIDTH:
+            self.x -= self.x + self.width - STAGE_WIDTH
 
     def rotate_left(self):
         self.blocks = list(reversed(list(zip(*self.blocks))))
@@ -35,7 +34,7 @@ class Figure:
                     y = (j + self.y) * self.BLOCK_SIZE
                     rect = pygame.Rect(x, y, self.BLOCK_SIZE, self.BLOCK_SIZE)
                     pygame.draw.rect(screen, self.color, rect)
-                    pygame.draw.rect(screen, Properties.BLOCK_BORDER_COLOR, rect, 1)
+                    pygame.draw.rect(screen, BLOCK_BORDER_COLOR, rect, 1)
                 i += 1
             j += 1
             i = 0
