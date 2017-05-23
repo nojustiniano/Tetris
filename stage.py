@@ -38,3 +38,5 @@ class Stage(Figure):
             self.score += sum([10 * n for n in range(partial_lines+1)])
             self.completed_lines += partial_lines
             print("Score: " + str(self.score) + " - Lines: " + str(self.completed_lines))
+
+        return partial_lines

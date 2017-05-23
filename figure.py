@@ -1,10 +1,10 @@
 import pygame
+
+from block_drawer import BlockDrawer, GhostBlockDrawer
 from properties import *
 
 
 class Figure:
-    BLOCK_SIZE = BLOCK_SIZE
-
     def __init__(self, blocks, color=(0, 80, 150)):
         self.blocks = blocks
         self.x = 0
@@ -13,6 +13,7 @@ class Figure:
         self.height = 0
         self._calculate_size()
         self.color = color
+        self.block_drawer = BlockDrawer()
 
     def rotate_right(self):
         self.blocks = list(zip(*self.blocks[::-1]))
@@ -30,11 +31,10 @@ class Figure:
         for line in self.blocks:
             for block in line:
                 if block == 1:
-                    x = (i + self.x) * self.BLOCK_SIZE
-                    y = (j + self.y) * self.BLOCK_SIZE
-                    rect = pygame.Rect(x, y, self.BLOCK_SIZE, self.BLOCK_SIZE)
-                    pygame.draw.rect(screen, self.color, rect)
-                    pygame.draw.rect(screen, BLOCK_BORDER_COLOR, rect, 1)
+                    x = (i + self.x) * BLOCK_SIZE
+                    y = (j + self.y) * BLOCK_SIZE
+                    rect = pygame.Rect(x, y, BLOCK_SIZE, BLOCK_SIZE)
+                    self.block_drawer.draw(rect, self.color, screen)
                 i += 1
             j += 1
             i = 0

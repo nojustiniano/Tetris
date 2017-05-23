@@ -8,11 +8,12 @@ from properties import *
 from collision import Collision
 from figure import figure_list
 from menu import Menu
+from secondplayer import SecondPlayer, NoPlayer, LanSecondPlayer
 from stage import Stage
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, two_player_mode=False, server_ip=''):
         pygame.init()
         self.gravity = 0
         self.rotated = 0
@@ -23,25 +24,19 @@ class Game:
         self.collision = Collision(self.stage)
         self.move_x = 0
         self.move_y = 0
+        if two_player_mode:
+            self.second_player = LanSecondPlayer(self.menu, server_ip)
+        else:
+            self.second_player = NoPlayer()
 
     def start_game(self):
         pygame.display.set_caption("Tetris")
 
-        screen = pygame.display.set_mode((
-            BLOCK_SIZE * STAGE_WIDTH + MENU_WIDTH + 3 * WINDOW_BORDER_WIDTH,
-            BLOCK_SIZE * STAGE_HEIGHT + 2 * WINDOW_BORDER_WIDTH
-        ))
-
-        stage_surface = pygame.Surface((BLOCK_SIZE * STAGE_WIDTH, BLOCK_SIZE * STAGE_HEIGHT))
+        screen = self.draw_screen()
+        stage_surface = pygame.Surface((BLOCK_SIZE * STAGE_WIDTH, BLOCK_SIZE * STAGE_HEIGHT), pygame.SRCALPHA)
         menu_surface = pygame.Surface((MENU_WIDTH, BLOCK_SIZE * STAGE_HEIGHT))
-        stage_border = pygame.Rect(0, 0, BLOCK_SIZE * STAGE_WIDTH + 2 * WINDOW_BORDER_WIDTH,
-                                   BLOCK_SIZE * STAGE_HEIGHT + 2 * WINDOW_BORDER_WIDTH)
 
-        menu_border = pygame.Rect(BLOCK_SIZE * STAGE_WIDTH, 0, MENU_WIDTH + 2 * WINDOW_BORDER_WIDTH,
-                                  BLOCK_SIZE * STAGE_HEIGHT + 2 * WINDOW_BORDER_WIDTH)
-
-        pygame.draw.rect(screen, BLOCK_BORDER_COLOR, stage_border, WINDOW_BORDER_WIDTH)
-        pygame.draw.rect(screen, BLOCK_BORDER_COLOR, menu_border, WINDOW_BORDER_WIDTH)
+        menu_horizontal_position = BLOCK_SIZE * STAGE_WIDTH + 2 * WINDOW_BORDER_WIDTH
 
         clock = pygame.time.Clock()
 
@@ -49,16 +44,19 @@ class Game:
             # Erase all
             stage_surface.fill(BACKGROUND_COLOR)
             menu_surface.fill(BACKGROUND_COLOR)
+            screen.blit(stage_surface, (WINDOW_BORDER_WIDTH, WINDOW_BORDER_WIDTH))
 
             # Draw the stage elements
             self.stage.draw(stage_surface)
             self.figure.draw(stage_surface)
             # Draw the menu elements
             self.menu.draw(menu_surface)
+            # Draw the second player things
+            self.second_player.draw(stage_surface, menu_surface)
 
             # Draw stage and menu in the screen
             screen.blit(stage_surface, (WINDOW_BORDER_WIDTH, WINDOW_BORDER_WIDTH))
-            screen.blit(menu_surface, (BLOCK_SIZE * STAGE_WIDTH + 2 * WINDOW_BORDER_WIDTH, WINDOW_BORDER_WIDTH))
+            screen.blit(menu_surface, (menu_horizontal_position, WINDOW_BORDER_WIDTH))
             # Update screen
             pygame.display.update()
 
@@ -73,13 +71,28 @@ class Game:
                 sys.exit(True)
 
             self.check_keys_pressed()
-
             self.check_collisions()
-
             # Check completed lines, remove them and add new at the beginning
-            self.stage.check_completed_lines()
+            completed_lines = self.stage.check_completed_lines()
+
+            # Exchange data with the second player
+            self.second_player.receive_data()
+            self.second_player.send_data(self.figure, self.stage, completed_lines)
 
             clock.tick(10)
+
+    def draw_screen(self):
+        screen = pygame.display.set_mode((
+            BLOCK_SIZE * STAGE_WIDTH + MENU_WIDTH + 3 * WINDOW_BORDER_WIDTH,
+            BLOCK_SIZE * STAGE_HEIGHT + 2 * WINDOW_BORDER_WIDTH
+        ))
+        stage_border = pygame.Rect(0, 0, BLOCK_SIZE * STAGE_WIDTH + 2 * WINDOW_BORDER_WIDTH,
+                                   BLOCK_SIZE * STAGE_HEIGHT + 2 * WINDOW_BORDER_WIDTH)
+        menu_border = pygame.Rect(BLOCK_SIZE * STAGE_WIDTH, 0, MENU_WIDTH + 2 * WINDOW_BORDER_WIDTH,
+                                  BLOCK_SIZE * STAGE_HEIGHT + 2 * WINDOW_BORDER_WIDTH)
+        pygame.draw.rect(screen, BLOCK_BORDER_COLOR, stage_border, WINDOW_BORDER_WIDTH)
+        pygame.draw.rect(screen, BLOCK_BORDER_COLOR, menu_border, WINDOW_BORDER_WIDTH)
+        return screen
 
     def check_keys_pressed(self):
         for event in pygame.event.get():
