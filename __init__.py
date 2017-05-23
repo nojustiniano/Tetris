@@ -17,12 +17,14 @@ if len(arguments) > 2:
 
 if server_ip == '':
     lan = LanServer()
+    lan.start((server_ip, 8082))
+
+    while lan.connection is None:
+        time.sleep(0.1)
 else:
     lan = LanClient()
+    lan.start((server_ip, 8082))
 
-lan.start((server_ip, 8082))
-while lan.connection is None:
-    time.sleep(0.1)
 
 game = Game(lan)
 game.start_game()
