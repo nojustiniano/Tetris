@@ -1,6 +1,6 @@
 import pygame
 
-from block_drawer import BlockDrawer, GhostBlockDrawer
+from block_drawer import BlockDrawer
 from properties import *
 
 

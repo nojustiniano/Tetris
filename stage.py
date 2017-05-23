@@ -43,9 +43,11 @@ class Stage(Figure):
 
         return partial_lines
 
-    def add_attack_line(self):
-        self.blocks.remove(self.blocks[0])
-        attack_line = list()
-        for x in range(STAGE_WIDTH):
-            attack_line.append(random.randint(0, 1))
-        self.blocks.insert(0, attack_line)
+    def add_attack_line(self, attack_power):
+        if attack_power > 1:
+            for n in range(0, attack_power - 1):
+                self.blocks.remove(self.blocks[0])
+                attack_line = list()
+                for x in range(STAGE_WIDTH):
+                    attack_line.append(random.randint(0, 1))
+                self.blocks.insert(STAGE_HEIGHT-1, attack_line)

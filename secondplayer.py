@@ -47,7 +47,7 @@ class LanSecondPlayer(SecondPlayer):
 
         return attack
 
-    def send_data(self, figure: Figure, stage: Stage, attack):
+    def send_data(self, figure: Figure, stage: Stage, attack_power):
         data_array = list()
         data_array.append(figure.blocks)
         data_array.append(figure.x)
@@ -55,7 +55,7 @@ class LanSecondPlayer(SecondPlayer):
         data_array.append(stage.blocks)
         data_array.append(stage.score)
         data_array.append(stage.completed_lines)
-        data_array.append(attack)
+        data_array.append(attack_power)
         self.lan.send_data(data_array)
 
     def draw(self, stage_surface, menu_surface):
