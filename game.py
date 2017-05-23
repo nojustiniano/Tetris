@@ -8,12 +8,12 @@ from properties import *
 from collision import Collision
 from figure import figure_list
 from menu import Menu
-from secondplayer import SecondPlayer, NoPlayer, LanSecondPlayer
+from secondplayer import NoPlayer, LanSecondPlayer
 from stage import Stage
 
 
 class Game:
-    def __init__(self, two_player_mode=False, server_ip=''):
+    def __init__(self, lan):
         pygame.init()
         self.gravity = 0
         self.rotated = 0
@@ -24,16 +24,18 @@ class Game:
         self.collision = Collision(self.stage)
         self.move_x = 0
         self.move_y = 0
-        if two_player_mode:
-            self.second_player = LanSecondPlayer(self.menu, server_ip)
-        else:
+        if lan is None:
             self.second_player = NoPlayer()
+        else:
+            self.second_player = LanSecondPlayer(self.menu, lan)
 
     def start_game(self):
         pygame.display.set_caption("Tetris")
 
         screen = self.draw_screen()
         stage_surface = pygame.Surface((BLOCK_SIZE * STAGE_WIDTH, BLOCK_SIZE * STAGE_HEIGHT), pygame.SRCALPHA)
+        second_player_stage_surface = pygame.Surface((BLOCK_SIZE * STAGE_WIDTH, BLOCK_SIZE * STAGE_HEIGHT),
+                                                     pygame.SRCALPHA)
         menu_surface = pygame.Surface((MENU_WIDTH, BLOCK_SIZE * STAGE_HEIGHT))
 
         menu_horizontal_position = BLOCK_SIZE * STAGE_WIDTH + 2 * WINDOW_BORDER_WIDTH
@@ -43,6 +45,7 @@ class Game:
         while True:
             # Erase all
             stage_surface.fill(BACKGROUND_COLOR)
+            second_player_stage_surface.fill((0, 0, 0, 0))
             menu_surface.fill(BACKGROUND_COLOR)
             screen.blit(stage_surface, (WINDOW_BORDER_WIDTH, WINDOW_BORDER_WIDTH))
 
@@ -52,10 +55,10 @@ class Game:
             # Draw the menu elements
             self.menu.draw(menu_surface)
             # Draw the second player things
-            self.second_player.draw(stage_surface, menu_surface)
+            self.second_player.draw(second_player_stage_surface, menu_surface)
 
-            # Draw stage and menu in the screen
             screen.blit(stage_surface, (WINDOW_BORDER_WIDTH, WINDOW_BORDER_WIDTH))
+            screen.blit(second_player_stage_surface, (WINDOW_BORDER_WIDTH, WINDOW_BORDER_WIDTH))
             screen.blit(menu_surface, (menu_horizontal_position, WINDOW_BORDER_WIDTH))
             # Update screen
             pygame.display.update()
@@ -85,7 +88,7 @@ class Game:
         screen = pygame.display.set_mode((
             BLOCK_SIZE * STAGE_WIDTH + MENU_WIDTH + 3 * WINDOW_BORDER_WIDTH,
             BLOCK_SIZE * STAGE_HEIGHT + 2 * WINDOW_BORDER_WIDTH
-        ))
+        ), pygame.DOUBLEBUF, 32)
         stage_border = pygame.Rect(0, 0, BLOCK_SIZE * STAGE_WIDTH + 2 * WINDOW_BORDER_WIDTH,
                                    BLOCK_SIZE * STAGE_HEIGHT + 2 * WINDOW_BORDER_WIDTH)
         menu_border = pygame.Rect(BLOCK_SIZE * STAGE_WIDTH, 0, MENU_WIDTH + 2 * WINDOW_BORDER_WIDTH,

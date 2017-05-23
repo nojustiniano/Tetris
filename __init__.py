@@ -1,6 +1,9 @@
 import sys
 
+import time
+
 from game import Game
+from lan import LanServer, LanClient
 
 arguments = sys.argv
 two_player_mode = False
@@ -12,5 +15,14 @@ if len(arguments) > 1:
 if len(arguments) > 2:
     server_ip = arguments[2]
 
-game = Game(two_player_mode, server_ip)
+if server_ip == '':
+    lan = LanServer()
+else:
+    lan = LanClient()
+
+lan.start((server_ip, 8082))
+while lan.connection is None:
+    time.sleep(0.1)
+
+game = Game(lan)
 game.start_game()

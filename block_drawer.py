@@ -11,5 +11,5 @@ class BlockDrawer:
 
 class GhostBlockDrawer(BlockDrawer):
     def draw(self, rect, color, screen):
-        pygame.draw.rect(screen, (255, 255, 255, 20), rect)
-        pygame.draw.rect(screen, (255, 255, 255, 40), rect, 1)
+        pygame.draw.rect(screen, (255, 255, 255, 40), rect)
+        pygame.draw.rect(screen, (0, 0, 0, 150), rect, 1)

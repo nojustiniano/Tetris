@@ -26,7 +26,7 @@ class LanServer(Lan):
 
     def start(self, address):
         self.sock.bind(address)
-        self.sock.listen(1)
+        self.sock.listen(5)
         d = threading.Thread(target=self.demon, name='Daemon', args=())
         d.setDaemon(True)
         d.start()
@@ -47,14 +47,14 @@ class LanServer(Lan):
                 self.connection.close()
 
     def send_data(self, data):
-        self.lock.acquire()
-        self.connection.sendall(str(data))
-        self.lock.release()
+        # self.lock.acquire()
+        self.connection.sendall(str(data).encode('utf-8'))
+        # self.lock.release()
 
     def get_data(self):
-        self.lock.acquire()
+        # self.lock.acquire()
         data = self.input_data
-        self.lock.release()
+        # self.lock.release()
         return data
 
 
@@ -72,21 +72,21 @@ class LanClient(Lan):
 
     def demon(self):
         while True:
-            self.lock.acquire()
+            # self.lock.acquire()
             data = self.sock.recv(1024)
             if data:
                 self.input_data = data
             else:
                 break
-            self.lock.release()
+            # self.lock.release()
 
     def send_data(self, data):
-        self.lock.acquire()
+        # self.lock.acquire()
         self.sock.sendall(str(data))
-        self.lock.release()
+        # self.lock.release()
 
     def get_data(self):
-        self.lock.acquire()
+        # self.lock.acquire()
         data = self.input_data
-        self.lock.release()
+        # self.lock.release()
         return data
