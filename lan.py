@@ -82,7 +82,7 @@ class LanClient(Lan):
 
     def send_data(self, data):
         # self.lock.acquire()
-        self.sock.sendall(str(data))
+        self.sock.sendall(str(data).encode('utf-8'))
         # self.lock.release()
 
     def get_data(self):
