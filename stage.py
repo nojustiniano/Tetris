@@ -1,3 +1,5 @@
+import random
+
 from figure import Figure
 from properties import *
 
@@ -40,3 +42,10 @@ class Stage(Figure):
             print("Score: " + str(self.score) + " - Lines: " + str(self.completed_lines))
 
         return partial_lines
+
+    def add_attack_line(self):
+        self.blocks.remove(self.blocks[0])
+        attack_line = list()
+        for x in range(STAGE_WIDTH):
+            attack_line.append(random.randint(0, 1))
+        self.blocks.insert(0, attack_line)

@@ -79,7 +79,12 @@ class Game:
             completed_lines = self.stage.check_completed_lines()
 
             # Exchange data with the second player
-            self.second_player.receive_data()
+            attack = self.second_player.receive_data()
+
+            if attack > 1:
+                for n in range(attack - 1):
+                    self.stage.add_attack_line()
+
             self.second_player.send_data(self.figure, self.stage, completed_lines)
 
             clock.tick(10)

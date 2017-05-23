@@ -72,4 +72,4 @@ class NoPlayer(SecondPlayer):
         pass
 
     def receive_data(self):
-        pass
+        return 0
