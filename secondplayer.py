@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from block_drawer import GhostBlockDrawer
+from block_drawer import GhostBlockDrawer, WiredBlockDrawer
 from figure import Figure
 from menu import Menu
 from stage import Stage
@@ -25,7 +25,7 @@ class LanSecondPlayer(SecondPlayer):
     def __init__(self, menu: Menu, lan):
         self.figure = Figure([])  # type: Figure
         self.stage = Stage()  # type: Stage
-        self.stage.block_drawer = GhostBlockDrawer()
+        self.stage.block_drawer = WiredBlockDrawer()
         self.figure.block_drawer = GhostBlockDrawer()
         self.menu = menu
         self.lan = lan

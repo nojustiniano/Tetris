@@ -20,9 +20,7 @@ if len(arguments) > 1:
     if server_ip == '':
         lan = LanServer()
         lan.start((server_ip, 8082))
-
-        while lan.connection is None:
-            time.sleep(0.1)
+        print("connected")
     else:
         lan = LanClient()
         lan.start((server_ip, 8082))
