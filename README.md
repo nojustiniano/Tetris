@@ -4,6 +4,8 @@ Simple Tetris clone made in Python3 with PyGame
 and support for local multiplayer
 </b>
 <br><br>
+To play use directional keys to move the pieces and A and S to rotate
+<br><br>
 To play in multiplayer mode start the game in server mode on the first PC:
 <br>
 <code>python3 __init__.py y</code>
